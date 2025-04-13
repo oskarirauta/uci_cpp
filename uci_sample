@@ -1,0 +1,34 @@
+config infra
+	option str 'string'
+	option uni 24a
+	option number 1
+	option float -12.5
+
+config infra 'infra1'
+	option ocifile '/tmp/infra.oci'
+	option bridge 'br-lan'
+	option host_ifd 'chost0'
+	option cntr_ifd 'eth0'
+	option ipaddress '10.0.70.1'
+	option prefix 16
+	option gateway '10.0.0.1'
+	list dns '10.0.0.1'
+	list dns '8.8.8.8'
+
+config container 'eka'
+	option ocifile '/tmp/sample.oci'
+	option work_dir '/tmp/mnt'
+	option overlay_path '/tmp/overlay'
+	option infra ''
+	option bridge 'br-lan'
+	option host_ifd 'chost1'
+	option cntr_ifd 'eth0'
+	option ipaddress '10.0.70.2'
+	option netmask '255.255.255.0'
+	option gateway '10.0.0.1'
+	list dns '10.0.0.1'
+	list dns '8.8.8.8'
+
+config container 'toka'
+	option ocifile '/tmp/sample2.oci'
+	option infra 'infra1'
