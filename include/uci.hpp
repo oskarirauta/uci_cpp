@@ -4,3 +4,4 @@
 #include "uci/category.hpp"
 #include "uci/section.hpp"
 #include "uci/option.hpp"
+#include "uci/type.hpp"

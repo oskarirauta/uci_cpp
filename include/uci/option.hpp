@@ -3,14 +3,12 @@
 #include <vector>
 #include <variant>
 
+#include "uci/type.hpp"
+
 namespace UCI {
 
 	class PACKAGE;
 	class SECTION;
-
-	enum TYPES {
-		STRING, FLOAT, INT, BOOL, ARRAY
-	};
 
 	class OPTION {
 
