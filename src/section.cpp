@@ -3,8 +3,6 @@
 #include "uci/util.hpp"
 #include "uci.hpp"
 
-static long next_section_id = 0;
-
 UCI::OPTION& UCI::SECTION::operator [](const std::string& option) {
 
 	std::string name = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(option))));
@@ -98,7 +96,11 @@ std::string UCI::SECTION::name() const {
 }
 
 size_t UCI::SECTION::index() const {
-	return this -> get_category().index_of(*this);
+	try {
+		return this -> _package -> get_category(this -> _category_id).index_of(*this);
+	} catch ( const std::runtime_error& e ) {
+		throw std::runtime_error(std::string(e.what()) + ", cannot get index for section " + this -> name());
+	}
 }
 
 unsigned long UCI::SECTION::id() const {
@@ -137,7 +139,7 @@ UCI::OPTION& UCI::SECTION::add(const std::string& name, const UCI::OPTION& optio
 		it -> _category_id = this -> _category_id;
 		it -> _section_id = this -> _id;
 		it -> _parent_id = -1;
-		it -> _id = UCI::OPTION::next_id(true);
+		it -> _id = UCI::PACKAGE::new_section_id();
 
 		if ( it -> type() == UCI::TYPE::ARRAY ) {
 
@@ -149,7 +151,7 @@ UCI::OPTION& UCI::SECTION::add(const std::string& name, const UCI::OPTION& optio
 				it2 -> _category_id = this -> _category_id;
 				it2 -> _section_id = this -> _id;
 				it2 -> _parent_id = it -> _id;
-				it2 -> _id = UCI::OPTION::next_id(true);
+				it2 -> _id = UCI::PACKAGE::new_section_id();
 			}
 		}
 
@@ -164,7 +166,7 @@ UCI::OPTION& UCI::SECTION::add(const std::string& name, const UCI::OPTION& optio
 	new_opt._category_id = this -> _category_id;
 	new_opt._section_id = this -> _id;
 	new_opt._parent_id = -1;
-	new_opt._id = UCI::OPTION::next_id(true);
+	new_opt._id = UCI::PACKAGE::new_option_id();
 
 	if ( new_opt.type() == UCI::TYPE::ARRAY ) {
 
@@ -176,7 +178,7 @@ UCI::OPTION& UCI::SECTION::add(const std::string& name, const UCI::OPTION& optio
 			it -> _category_id = this -> _category_id;
 			it -> _section_id = this -> _id;
 			it -> _parent_id = new_opt._id;
-			it -> _id = UCI::OPTION::next_id(true);
+			it -> _id = UCI::PACKAGE::new_option_id();
 		}
 	}
 
@@ -206,34 +208,7 @@ size_t UCI::SECTION::index_of(const UCI::OPTION& option) const {
 	return it == this -> _options.end() ? -1 : std::distance(this -> _options.begin(), it);
 }
 
-const UCI::CATEGORY& UCI::SECTION::get_category() const {
-
-	auto it = std::find_if(this -> _package -> _categories.begin(), this -> _package -> _categories.end(), [this](const UCI::CATEGORY& t) { return this -> _category_id == t._id; });
-
-	if ( it == this -> _package -> _categories.end())
-		throw std::runtime_error("get_category failed to find category with id " + std::to_string(this -> _category_id));
-
-	return *it;
-}
-
-UCI::CATEGORY& UCI::SECTION::get_category() {
-
-	auto it = std::find_if(this -> _package -> _categories.begin(), this -> _package -> _categories.end(), [this](const UCI::CATEGORY& t) { return this -> _category_id == t._id; });
-
-	if ( it == this -> _package -> _categories.end())
-		throw std::runtime_error("get_category failed to find category with id " + std::to_string(this -> _category_id));
-
-	return *it;
-}
-
-long UCI::SECTION::next_id(bool push) {
-
-	if ( push )
-		return next_section_id++;
-	else
-		return next_section_id;
-}
-
-void UCI::SECTION::push_next_id() {
-	next_section_id++;
+std::ostream& operator <<(std::ostream& os, const UCI::SECTION& section) {
+	os << section.name();
+	return os;
 }

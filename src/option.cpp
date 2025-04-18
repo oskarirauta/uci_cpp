@@ -3,8 +3,6 @@
 #include "uci/util.hpp"
 #include "uci.hpp"
 
-static long next_option_id = 0;
-
 bool UCI::OPTION::operator ==(const UCI::TYPE& type) const {
 	return this -> type() == type;
 }
@@ -177,7 +175,7 @@ UCI::OPTION& UCI::OPTION::operator =(const std::vector<OPTION>& value) {
 	for ( auto it = vec.begin(); it != vec.end(); it++ ) {
 
 		it -> _name = this -> _name;
-		it -> _id = UCI::OPTION::next_id(true);
+		it -> _id = UCI::PACKAGE::new_option_id();
 		it -> _parent_id = this -> _id;
 		it -> _section_id = this -> _section_id;
 		it -> _category_id = this -> _category_id;
@@ -190,7 +188,7 @@ UCI::OPTION& UCI::OPTION::operator =(const std::vector<OPTION>& value) {
 UCI::OPTION& UCI::OPTION::operator =(const UCI::OPTION& other) {
 
 	if ( this -> _id == -1 )
-		this -> _id = UCI::OPTION::next_id(true);
+		this -> _id = UCI::PACKAGE::new_option_id();
 
 	if ( other.type() == UCI::STRING ) {
 		std::string s = std::get<std::string>(other._value);
@@ -216,7 +214,7 @@ UCI::OPTION& UCI::OPTION::operator =(const UCI::OPTION& other) {
 		for ( auto it = vec.begin(); it != vec.end(); it++ ) {
 
 			it -> _name = this -> _name;
-			it -> _id = UCI::OPTION::next_id(true);
+			it -> _id = UCI::PACKAGE::new_option_id();
 			it -> _parent_id = this -> _id;
 			it -> _section_id = this -> _section_id;
 			it -> _category_id = this -> _category_id;
@@ -370,7 +368,13 @@ size_t UCI::OPTION::index() const {
 		auto it = std::find_if(parent.begin(), parent.end(), [&id](const UCI::OPTION& o) { return id == o._id; });
 		return it == parent.end() ? -1 : std::distance(parent.begin(), it);
 
-	} else return this -> get_section().index_of(*this);
+	}
+
+	try {
+		return this -> _package -> get_category(this -> _category_id).get_section(this -> _section_id).index_of(*this);
+	} catch ( const std::runtime_error& e ) {
+		throw std::runtime_error(std::string(e.what()) + ", cannot get index of option " + this -> _name);
+	}
 }
 
 UCI::TYPE UCI::OPTION::type() const {
@@ -600,8 +604,14 @@ void UCI::OPTION::remove() {
 
 	if ( this -> _parent_id != -1 && this -> get_parent().type() == UCI::TYPE::ARRAY )
 		this -> get_parent().remove(*this);
-	else if ( this -> _section_id != -1 )
-		this -> get_section().remove(*this);
+	else if ( this -> _section_id != -1 ) {
+
+		try {
+			this -> _package -> get_category(this -> _category_id).get_section(this -> _section_id).remove(*this);
+		} catch ( const std::runtime_error& e ) {
+			throw std::runtime_error(std::string(e.what()) + ", cannot remove option " + this -> _name);
+		}
+	}
 }
 
 void UCI::OPTION::remove(const UCI::OPTION& option) {
@@ -618,14 +628,18 @@ void UCI::OPTION::remove(const UCI::OPTION& option) {
 		this -> _package -> clean_up();
 }
 
-UCI::OPTION::OPTION(const std::string& value) {
+void UCI::OPTION::reset() {
 
 	this -> _package = nullptr;
 	this -> _category_id = -1;
 	this -> _section_id = -1;
 	this -> _parent_id = -1;
 	this -> _id = -1;
+}
 
+UCI::OPTION::OPTION(const std::string& value) {
+
+	this -> reset();
 	this -> _value.emplace<std::string>(std::forward<decltype(value)>(value));
 }
 
@@ -633,23 +647,13 @@ UCI::OPTION::OPTION(const char* value) {
 
 	std::string s(value);
 
-	this -> _package = nullptr;
-	this -> _category_id = -1;
-	this -> _section_id = -1;
-	this -> _parent_id = -1;
-	this -> _id = -1;
-
+	this -> reset();
 	this -> _value.emplace<std::string>(std::forward<decltype(s)>(s));
 }
 
 UCI::OPTION::OPTION(const long double& value) {
 
-	this -> _package = nullptr;
-	this -> _category_id = -1;
-	this -> _section_id = -1;
-	this -> _parent_id = -1;
-	this -> _id = -1;
-
+	this -> reset();
 	this -> _value.emplace<long double>(std::forward<decltype(value)>(value));
 }
 
@@ -657,12 +661,7 @@ UCI::OPTION::OPTION(const double& value) {
 
 	long double ld = (long double)value;
 
-	this -> _package = nullptr;
-	this -> _category_id = -1;
-	this -> _section_id = -1;
-	this -> _parent_id = -1;
-	this -> _id = -1;
-
+	this -> reset();
 	this -> _value.emplace<long double>(std::forward<decltype(ld)>(ld));
 }
 
@@ -670,23 +669,13 @@ UCI::OPTION::OPTION(const float& value) {
 
 	long double ld = (long double)value;
 
-	this -> _package = nullptr;
-	this -> _category_id = -1;
-	this -> _section_id = -1;
-	this -> _parent_id = -1;
-	this -> _id = -1;
-
+	this -> reset();
 	this -> _value.emplace<long double>(std::forward<decltype(ld)>(ld));
 }
 
 UCI::OPTION::OPTION(const long long& value) {
 
-	this -> _package = nullptr;
-	this -> _category_id = -1;
-	this -> _section_id = -1;
-	this -> _parent_id = -1;
-	this -> _id = -1;
-
+	this -> reset();
 	this -> _value.emplace<long long>(std::forward<decltype(value)>(value));
 }
 
@@ -694,147 +683,55 @@ UCI::OPTION::OPTION(const int& value) {
 
 	long long ll = (long long)value;
 
-	this -> _package = nullptr;
-	this -> _category_id = -1;
-	this -> _section_id = -1;
-	this -> _parent_id = -1;
-	this -> _id = -1;
-
+	this -> reset();
 	this -> _value.emplace<long long>(std::forward<decltype(ll)>(ll));
 }
 
 UCI::OPTION::OPTION(const bool& value) {
 
-	this -> _package = nullptr;
-	this -> _category_id = -1;
-	this -> _section_id = -1;
-	this -> _parent_id = -1;
-	this -> _id = -1;
-
+	this -> reset();
 	this -> _value.emplace<bool>(std::forward<decltype(value)>(value));
 }
 
 UCI::OPTION::OPTION(const std::vector<UCI::OPTION>& value) {
 
-	this -> _package = nullptr;
-	this -> _category_id = -1;
-	this -> _section_id = -1;
-	this -> _parent_id = -1;
-	this -> _id = -1;
-
+	this -> reset();
 	this -> _value.emplace<std::vector<UCI::OPTION>>(std::forward<decltype(value)>(value));
 
 	std::vector<UCI::OPTION>& vec = std::get<std::vector<UCI::OPTION>>(this -> _value);
-	for ( auto it = vec.begin(); it != vec.end(); it++ ) {
+	for ( auto it = vec.begin(); it != vec.end(); it++ )
+		it -> reset();
 
-		it -> _package = nullptr;
-		it -> _category_id = -1;
-		it -> _section_id = -1;
-		it -> _parent_id = -1;
-		it -> _id = -1;
-	}
 }
 
 const UCI::OPTION& UCI::OPTION::get_parent() const {
 
-	auto it = std::find_if(this -> _package -> _categories.begin(), this -> _package -> _categories.end(), [this](const UCI::CATEGORY& t) { return this -> _category_id == t._id; });
+	try {
+		UCI::SECTION& section = this -> _package -> get_category(this -> _category_id).get_section(this -> _section_id);
 
-	if ( it == this -> _package -> _categories.end())
-		throw std::runtime_error("get_parent failed to find category with id " + std::to_string(this -> _category_id));
+		if ( auto it = std::find_if(section._options.begin(), section._options.end(), [this](const UCI::OPTION& o) { return this -> _parent_id == o._id; });
+			it != section._options.end())
+			return *it;
+	} catch ( const std::runtime_error& e ) {
+		throw e;
+	}
 
-	UCI::CATEGORY& _category = *it;
-
-	auto it2 = std::find_if(_category._sections.begin(), _category._sections.end(), [this](const UCI::SECTION& s) { return this -> _section_id == s._id; });
-
-	if ( it2 == _category._sections.end())
-		throw std::runtime_error("get_parent failed to find section with id " + std::to_string(this -> _section_id));
-
-	UCI::SECTION& _section = *it2;
-
-	auto it3 = std::find_if(_section._options.begin(), _section._options.end(), [this](const UCI::OPTION& o) { return this -> _parent_id == o._id; });
-
-	if ( it3 == _section._options.end())
-		throw std::runtime_error("get parent failed to find option with id " + std::to_string(this -> _parent_id));
-
-	return *it3;
+	throw std::runtime_error("get parent failed to find option with id " + std::to_string(this -> _parent_id));
 }
 
 UCI::OPTION& UCI::OPTION::get_parent() {
 
-	auto it = std::find_if(this -> _package -> _categories.begin(), this -> _package -> _categories.end(), [this](const UCI::CATEGORY& t) { return this -> _category_id == t._id; });
+	try {
+		UCI::SECTION& section = this -> _package -> get_category(this -> _category_id).get_section(this -> _section_id);
 
-	if ( it == this -> _package -> _categories.end())
-		throw std::runtime_error("get_parent failed to find category with id " + std::to_string(this -> _category_id));
+		if ( auto it = std::find_if(section._options.begin(), section._options.end(), [this](const UCI::OPTION& o) { return this -> _parent_id == o._id; });
+			it != section._options.end())
+			return *it;
+	} catch ( const std::runtime_error& e ) {
+		throw e;
+	}
 
-	UCI::CATEGORY& _category = *it;
-
-	auto it2 = std::find_if(_category._sections.begin(), _category._sections.end(), [this](const UCI::SECTION& s) { return this -> _section_id == s._id; });
-
-	if ( it2 == _category._sections.end())
-		throw std::runtime_error("get_parent failed to find section with id " + std::to_string(this -> _section_id));
-
-	UCI::SECTION& _section = *it2;
-
-	auto it3 = std::find_if(_section._options.begin(), _section._options.end(), [this](const UCI::OPTION& o) { return this -> _parent_id == o._id; });
-
-	if ( it3 == _section._options.end())
-		throw std::runtime_error("get parent failed to find option with id " + std::to_string(this -> _parent_id));
-
-	return *it3;
-}
-
-const UCI::SECTION& UCI::OPTION::get_section() const {
-
-	auto it = std::find_if(this -> _package -> _categories.begin(), this -> _package -> _categories.end(), [this](const UCI::CATEGORY& t) { return this -> _category_id == t._id; });
-
-	if ( it == this -> _package -> _categories.end())
-		throw std::runtime_error("get_section failed to find category with id " + std::to_string(this -> _category_id));
-
-	UCI::CATEGORY& _category = *it;
-
-	auto it2 = std::find_if(_category._sections.begin(), _category._sections.end(), [this](const UCI::SECTION& s) { return this -> _section_id == s._id; });
-
-	if ( it2 == _category._sections.end())
-		throw std::runtime_error("get_section failed to find section with id " + std::to_string(this -> _section_id));
-
-	return *it2;
-}
-
-UCI::SECTION& UCI::OPTION::get_section() {
-
-	auto it = std::find_if(this -> _package -> _categories.begin(), this -> _package -> _categories.end(), [this](const UCI::CATEGORY& t) { return this -> _category_id == t._id; });
-
-	if ( it == this -> _package -> _categories.end())
-		throw std::runtime_error("get_section failed to find category with id " + std::to_string(this -> _category_id));
-
-	UCI::CATEGORY& _category = *it;
-
-	auto it2 = std::find_if(_category._sections.begin(), _category._sections.end(), [this](const UCI::SECTION& s) { return this -> _section_id == s._id; });
-
-	if ( it2 == _category._sections.end())
-		throw std::runtime_error("get_section failed to find section with id " + std::to_string(this -> _section_id));
-
-	return *it2;
-}
-
-const UCI::CATEGORY& UCI::OPTION::get_category() const {
-
-	auto it = std::find_if(this -> _package -> _categories.begin(), this -> _package -> _categories.end(), [this](const UCI::CATEGORY& t) { return this -> _category_id == t._id; });
-
-	if ( it == this -> _package -> _categories.end())
-		throw std::runtime_error("get_category failed to find category with id " + std::to_string(this -> _category_id));
-
-	return *it;
-}
-
-UCI::CATEGORY& UCI::OPTION::get_category() {
-
-	auto it = std::find_if(this -> _package -> _categories.begin(), this -> _package -> _categories.end(), [this](const UCI::CATEGORY& t) { return this -> _category_id == t._id; });
-
-	if ( it == this -> _package -> _categories.end())
-		throw std::runtime_error("get_category failed to find category with id " + std::to_string(this -> _category_id));
-
-	return *it;
+	throw std::runtime_error("get parent failed to find option with id " + std::to_string(this -> _parent_id));
 }
 
 void UCI::OPTION::set_ids(long category_id, long section_id, long id) {
@@ -857,22 +754,14 @@ UCI::OPTION::OPTION() {
 
 	std::nullptr_t n = nullptr;
 
-	this -> _package = nullptr;
-	this -> _category_id = -1;
-	this -> _section_id = -1;
-	this -> _parent_id = -1;
-	this -> _id = -1;
-
+	this -> reset();
 	this -> _value.emplace<std::nullptr_t>(std::forward<decltype(n)>(n));
 }
 
 UCI::OPTION::OPTION(UCI::PACKAGE* package, const std::string& name, const std::nullptr_t& n) {
 
+	this -> reset();
 	this -> _package = package;
-	this -> _category_id = -1;
-	this -> _section_id = -1;
-	this -> _parent_id = -1;
-	this -> _id = -1;
 	this -> _name = name;
 
 	this -> _value.emplace<std::nullptr_t>(std::forward<decltype(n)>(n));
@@ -880,11 +769,8 @@ UCI::OPTION::OPTION(UCI::PACKAGE* package, const std::string& name, const std::n
 
 UCI::OPTION::OPTION(UCI::PACKAGE* package, const std::string& name, const std::string& value) {
 
+	this -> reset();
 	this -> _package = package;
-	this -> _category_id = -1;
-	this -> _section_id = -1;
-	this -> _parent_id = -1;
-	this -> _id = -1;
 	this -> _name = name;
 
 	this -> _value.emplace<std::string>(std::forward<decltype(value)>(value));
@@ -892,11 +778,8 @@ UCI::OPTION::OPTION(UCI::PACKAGE* package, const std::string& name, const std::s
 
 UCI::OPTION::OPTION(UCI::PACKAGE* package, const std::string& name, const long long& value) {
 
+	this -> reset();
 	this -> _package = package;
-	this -> _category_id = -1;
-	this -> _section_id = -1;
-	this -> _parent_id = -1;
-	this -> _id = -1;
 	this -> _name = name;
 
 	this -> _value.emplace<long long>(std::forward<decltype(value)>(value));
@@ -904,11 +787,8 @@ UCI::OPTION::OPTION(UCI::PACKAGE* package, const std::string& name, const long l
 
 UCI::OPTION::OPTION(UCI::PACKAGE* package, const std::string& name, const long double& value) {
 
+	this -> reset();
 	this -> _package = package;
-	this -> _category_id = -1;
-	this -> _section_id = -1;
-	this -> _parent_id = -1;
-	this -> _id = -1;
 	this -> _name = name;
 
 	this -> _value.emplace<long double>(std::forward<decltype(value)>(value));
@@ -916,11 +796,8 @@ UCI::OPTION::OPTION(UCI::PACKAGE* package, const std::string& name, const long d
 
 UCI::OPTION::OPTION(UCI::PACKAGE* package, const std::string& name, const bool& value) {
 
+	this -> reset();
 	this -> _package = package;
-	this -> _category_id = -1;
-	this -> _section_id = -1;
-	this -> _parent_id = -1;
-	this -> _id = -1;
 	this -> _name = name;
 
 	this -> _value.emplace<bool>(std::forward<decltype(value)>(value));
@@ -928,11 +805,8 @@ UCI::OPTION::OPTION(UCI::PACKAGE* package, const std::string& name, const bool& 
 
 UCI::OPTION::OPTION(UCI::PACKAGE* package, const std::string& name, const std::vector<UCI::OPTION>& array) {
 
+	this -> reset();
 	this -> _package = package;
-	this -> _category_id = -1;
-	this -> _section_id = -1;
-	this -> _parent_id = -1;
-	this -> _id = -1;
 	this -> _name = name;
 
 	this -> _value.emplace<std::vector<OPTION>>(std::forward<decltype(array)>(array));
@@ -943,23 +817,13 @@ UCI::OPTION::OPTION(UCI::PACKAGE* package, const std::string& name, const std::v
 		if ( it -> type() == UCI::TYPE::ARRAY )
 			throw std::runtime_error("invalid list, nested lists are not allowed");
 
+		it -> reset();
 		it -> _package = package;
-		it -> _category_id = -1;
-		it -> _section_id = -1;
-		it -> _parent_id = -1;
-		it -> _id = -1;
 		it -> _name = name;
 	}
 }
 
-long UCI::OPTION::next_id(bool push) {
-
-	if ( push )
-		return next_option_id++;
-	else
-		return next_option_id;
-}
-
-void UCI::OPTION::push_next_id() {
-	next_option_id++;
+std::ostream& operator <<(std::ostream& os, const UCI::OPTION& option) {
+	os << option.name() << "=" << option.to_string();
+	return os;
 }

@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <variant>
+#include <ostream>
 
 #include "uci/type.hpp"
 
@@ -104,15 +105,12 @@ namespace UCI {
 			std::string _name = "";
 			std::variant<std::string, long long, long double, bool, std::vector<OPTION>, std::nullptr_t> _value = nullptr;
 
+			void reset();
 			void set_ids(long category_id, long section_id, long id);
 			void set_ids(long category_id, long section_id, long parent_id, long id);
 
 			const OPTION& get_parent() const;
 			OPTION& get_parent();
-			const SECTION& get_section() const;
-			SECTION& get_section();
-			const CATEGORY& get_category() const;
-			CATEGORY& get_category();
 
 			OPTION();
 			OPTION(PACKAGE* package, const std::string& name, const std::nullptr_t& n);
@@ -121,9 +119,8 @@ namespace UCI {
 			OPTION(PACKAGE* package, const std::string& name, const long double& value);
 			OPTION(PACKAGE* package, const std::string& name, const bool& value);
 			OPTION(PACKAGE* package, const std::string& name, const std::vector<OPTION>& array);
-
-			static long next_id(bool push = false);
-			static void push_next_id();
 	};
 
 };
+
+std::ostream& operator <<(std::ostream& os, const UCI::OPTION& option);

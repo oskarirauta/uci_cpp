@@ -7,6 +7,10 @@
 #include "uci/util.hpp"
 #include "uci.hpp"
 
+static long last_category_id = 0;
+static long last_section_id = 0;
+static long last_option_id = 0;
+
 UCI::CATEGORY& UCI::PACKAGE::operator [](const std::string& category) {
 
 	std::string name = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(category))));
@@ -136,7 +140,7 @@ UCI::SECTION& UCI::PACKAGE::add(const std::string& category, const std::optional
 
 	auto _category = std::find_if(this -> _categories.begin(), this -> _categories.end(), [&category_name](const UCI::CATEGORY& t) { return category_name == t._name; });
 	if ( _category == this -> _categories.end()) {
-		this -> _categories.push_back(UCI::CATEGORY(this, UCI::CATEGORY::next_id(true), category_name));
+		this -> _categories.push_back(UCI::CATEGORY(this, UCI::PACKAGE::new_category_id(), category_name));
 		for ( auto it = this -> _categories.begin(); it != this -> _categories.end(); it++ )
 			_category = it;
 	}
@@ -157,7 +161,7 @@ UCI::SECTION& UCI::PACKAGE::add(const std::string& category) {
 
 	auto _category = std::find_if(this -> _categories.begin(), this -> _categories.end(), [&category_name](const UCI::CATEGORY& t) { return category_name == t._name; });
 	if ( _category == this -> _categories.end()) {
-		this -> _categories.push_back(UCI::CATEGORY(this, UCI::CATEGORY::next_id(true), category_name));
+		this -> _categories.push_back(UCI::CATEGORY(this, UCI::PACKAGE::new_category_id(), category_name));
 		for ( auto it = this -> _categories.begin(); it != this -> _categories.end(); it++ )
 			_category = it;
 	}
@@ -175,10 +179,22 @@ size_t UCI::PACKAGE::index_of(const UCI::CATEGORY& category) const {
 	return it == this -> _categories.end() ? -1 : std::distance(this -> _categories.begin(), it);
 }
 
+const UCI::CATEGORY& UCI::PACKAGE::get_category(const long& category_id) const {
+
+	if ( auto it = std::find_if(this -> _categories.begin(), this -> _categories.end(), [&category_id](const UCI::CATEGORY& t) { return category_id == t._id; });
+		it != this -> _categories.end())
+		return *it;
+
+	throw std::runtime_error("get_category: id " + std::to_string(category_id) + " is out of bounds, category not found");
+}
+
 UCI::CATEGORY& UCI::PACKAGE::get_category(const long& category_id) {
 
-	auto it = std::find_if(this -> _categories.begin(), this -> _categories.end(), [&category_id](const UCI::CATEGORY& t ) { return category_id == t._id; });
-	return *it;
+	if ( auto it = std::find_if(this -> _categories.begin(), this -> _categories.end(), [&category_id](const UCI::CATEGORY& t) { return category_id == t._id; });
+		it != this -> _categories.end())
+		return *it;
+
+	throw std::runtime_error("get_category: id " + std::to_string(category_id) + " is out of bounds, category not found");
 }
 
 void UCI::PACKAGE::remove(const long& category_id, const long& section_id) {
@@ -252,4 +268,33 @@ UCI::PACKAGE::PACKAGE(const std::string& package) {
 UCI::PACKAGE::PACKAGE() {
 
 	this -> _package = "";
+}
+
+long UCI::PACKAGE::new_category_id() {
+	return ++last_category_id;
+}
+
+long UCI::PACKAGE::get_category_id() {
+	return last_category_id;
+}
+
+long UCI::PACKAGE::new_section_id() {
+	return ++last_section_id;
+}
+
+long UCI::PACKAGE::get_section_id() {
+	return last_section_id;
+}
+
+long UCI::PACKAGE::new_option_id() {
+	return ++last_option_id;
+}
+
+long UCI::PACKAGE::get_option_id() {
+	return last_option_id;
+}
+
+std::ostream& operator <<(std::ostream& os, const UCI::PACKAGE& package) {
+	os << package.dump();
+	return os;
 }

@@ -17,7 +17,7 @@ and then use save() to write it.
 Parsing content can be used by subscripts and iterators, also contains is available.
 Structure of package goes like this:
 
-`pkg[type][section][option/list][[ optional list option]]`
+`pkg[category][section][option/list][[ optional list option]]`
 
 For example..
 ```
@@ -41,10 +41,10 @@ Use `add()` (available in various classes, check headers) to create new sections
 You can also use `add()` to add to list.. `pkg["interface"]["eth0"]["dns"].add("2.2.2.2");` beware, nested lists will throw.
 
 Finally, if you make changes to your uci config, you can call `pkg.clean_up()` to remove any clutter; this means
-that every type and section without options, will be removed.
+that every category and section without options, will be removed.
 
-You can use `dump()` to output contents similarly as uci client app does it.. All members also have index() available.
-`pkg.filedata()` contains current config's data, `save()` writes that content to file.
+You can use `dump()` to get current package's data as a string.. All members also have index() available.
+or use `save()` to write/update that content to file.
 
 You can remove things also, for example `pkg["interface"]["eth0"].remove();` - this is also available for options.
 
@@ -64,12 +64,12 @@ You can get type of option with `type()`. Types also have comparison features av
 
 ### <sub>option casting</sub>
 you can check if option can be casted to certain type. Type definitions:
- - UCI::TYPES::STRING
- - UCI::TYPES::INT
- - UCI::TYPES::FLOAT
- - UCI::TYPES::BOOL
+ - UCI::TYPE::STRING
+ - UCI::TYPE::INT
+ - UCI::TYPE::FLOAT
+ - UCI::TYPE::BOOL
 
-and also UCI::TYPES::ARRAY, but for obvious reasons, you cannot cast to that type.
+and also UCI::TYPE::ARRAY, but for obvious reasons, you cannot cast to that type.
 
 casting is done with option's `convertible_to(type)` and to do actual casting, you can use
  - to_string()
@@ -78,10 +78,11 @@ casting is done with option's `convertible_to(type)` and to do actual casting, y
  - to_bool()
 
 anything can be casted to string (even array). If casting to float, int or bool fails, it throws - but this
-is something that you can avoid by using `convertible_to(UCI::TYPES::*type*)`
+is something that you can avoid by using `convertible_to(UCI::TYPE::*type*)`
 
-### <sub>what next?</sub>
-ostream support would be nice
+### <sub>ostream support/sub>
+package, category, section and option can all be directed to ostream. Outputting package, will output package's context,
+which you can obtain as a string with `dump()`
 
 ### <sub>importing</sub>
 Yes, clone as submodule to uci in root of your project.

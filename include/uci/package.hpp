@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <optional>
+#include <ostream>
 
 namespace UCI {
 
@@ -40,27 +41,35 @@ namespace UCI {
 			std::string filename() const;
 			void clean_up();
 			void set_filename(const std::string& package);
-			std::string filedata() const;
+			std::string dump() const;
 			void save();
 			void save() const;
-			void dump() const;
 
 			UCI::SECTION& add(const std::string& category, const std::optional<std::string>& section);
 			UCI::SECTION& add(const std::string& category);
 
 			PACKAGE(const std::string& package);
+			PACKAGE();
 
 		private:
 			std::string _package;
 			std::vector<UCI::CATEGORY> _categories;
 
 			size_t index_of(const UCI::CATEGORY& category) const;
+			const UCI::CATEGORY& get_category(const long& category_id) const;
 			UCI::CATEGORY& get_category(const long& category_id);
 
 			void remove(const long& category_id, const long& section_id);
 			void parse(const std::string& blob);
 
-			PACKAGE();
+			static long new_category_id();
+			static long get_category_id();
+			static long new_section_id();
+			static long get_section_id();
+			static long new_option_id();
+			static long get_option_id();
 	};
 
 }
+
+std::ostream& operator <<(std::ostream& os, const UCI::PACKAGE& package);

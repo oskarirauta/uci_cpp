@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <optional>
+#include <ostream>
 
 namespace UCI {
 
@@ -55,16 +56,14 @@ namespace UCI {
 			std::vector<UCI::OPTION> _options = {};
 
 			size_t index_of(const UCI::OPTION& option) const;
-			const CATEGORY& get_category() const;
-			CATEGORY& get_category();
 
 			SECTION(PACKAGE* package, long category_id, long id) :
 				_package(package), _category_id(category_id), _id(id), _name(std::nullopt) {}
 			SECTION(PACKAGE* package, long category_id, long id, const std::optional<std::string>& name) :
 				_package(package), _category_id(category_id), _id(id), _name(name) {}
 
-			static long next_id(bool push = false);
-			static void push_next_id();
 	};
 
-};
+}
+
+std::ostream& operator <<(std::ostream& os, const UCI::SECTION& section);

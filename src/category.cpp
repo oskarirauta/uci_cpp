@@ -3,8 +3,6 @@
 #include "uci/util.hpp"
 #include "uci.hpp"
 
-static long next_category_id = 0;
-
 UCI::SECTION& UCI::CATEGORY::operator [](const std::string& section) {
 
 	std::string name = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(section))));
@@ -120,11 +118,11 @@ UCI::SECTION& UCI::CATEGORY::add(const std::optional<std::string>& section) {
 			}) != this -> _sections.end())
 			throw std::runtime_error("duplicate section " + name);
 
-		this -> _sections.push_back(SECTION(this -> _package, this -> _id, UCI::SECTION::next_id(true), name));
+		this -> _sections.push_back(SECTION(this -> _package, this -> _id, UCI::PACKAGE::new_section_id(), name));
 		return this -> _sections.back();
 	}
 
-	this -> _sections.push_back(SECTION(this -> _package, this -> _id, UCI::SECTION::next_id(true)));
+	this -> _sections.push_back(SECTION(this -> _package, this -> _id, UCI::PACKAGE::new_section_id()));
 	return this -> _sections.back();
 }
 
@@ -134,14 +132,25 @@ size_t UCI::CATEGORY::index_of(const UCI::SECTION& section) const {
 	return it == this -> _sections.end() ? -1 : std::distance(this -> _sections.begin(), it);
 }
 
-long UCI::CATEGORY::next_id(bool push) {
+const UCI::SECTION& UCI::CATEGORY::get_section(const long& section_id) const {
 
-	if ( push )
-		return next_category_id++;
-	else
-		return next_category_id;
+	if ( auto it = std::find_if(this -> _sections.begin(), this -> _sections.end(), [&section_id](const UCI::SECTION& s) { return section_id == s._id; });
+		it != this -> _sections.end())
+		return *it;
+
+	throw std::runtime_error("get_section: id " + std::to_string(section_id) + " is out of bounds, section not found");
 }
 
-void UCI::CATEGORY::push_next_id() {
-	next_category_id++;
+UCI::SECTION& UCI::CATEGORY::get_section(const long& section_id) {
+
+	if ( auto it = std::find_if(this -> _sections.begin(), this -> _sections.end(), [&section_id](const UCI::SECTION& s) { return section_id == s._id; });
+		it != this -> _sections.end())
+		return *it;
+
+	throw std::runtime_error("get_section: id " + std::to_string(section_id) + " is out of bounds, section not found");
+}
+
+std::ostream& operator <<(std::ostream& os, const UCI::CATEGORY& category) {
+	os << category.name();
+	return os;
 }

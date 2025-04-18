@@ -274,7 +274,7 @@ void UCI::PACKAGE::parse(const std::string& blob) {
 	this -> clean_up();
 }
 
-std::string UCI::PACKAGE::filedata() const {
+std::string UCI::PACKAGE::dump() const {
 
 	std::string s = "";
 
@@ -319,19 +319,16 @@ std::string UCI::PACKAGE::filedata() const {
 
 void UCI::PACKAGE::save() const {
 
-	std::string content = this -> filedata();
-
 	std::ofstream f(this -> _package, std::ios::trunc);
-	f << content << std::endl;
+	f << *this << std::endl;
 	f.close();
 }
 
 void UCI::PACKAGE::save() {
 
 	this -> clean_up();
-	std::string content = this -> filedata();
 
 	std::ofstream f(this -> _package, std::ios::trunc);
-	f << content << std::endl;
+	f << *this << std::endl;
 	f.close();
 }

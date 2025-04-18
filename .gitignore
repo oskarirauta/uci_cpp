@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+example
+objs
+uci_sample2
