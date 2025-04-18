@@ -5,17 +5,17 @@
 
 static long next_option_id = 0;
 
-bool UCI::OPTION::operator ==(const UCI::TYPES& type) const {
+bool UCI::OPTION::operator ==(const UCI::TYPE& type) const {
 	return this -> type() == type;
 }
 
-bool UCI::OPTION::operator !=(const UCI::TYPES& type) const {
+bool UCI::OPTION::operator !=(const UCI::TYPE& type) const {
 	return this -> type() != type;
 }
 
 bool UCI::OPTION::operator ==(const std::string& value) {
 
-	if ( this -> type() == UCI::TYPES::ARRAY )
+	if ( this -> type() == UCI::TYPE::ARRAY )
 		return false;
 
 	return this -> to_string() == value;
@@ -28,7 +28,7 @@ bool UCI::OPTION::operator ==(const char* value) {
 
 bool UCI::OPTION::operator ==(const long long& value) {
 
-	if ( this -> type() == UCI::TYPES::ARRAY )
+	if ( this -> type() == UCI::TYPE::ARRAY )
 		return false;
 
 	try {
@@ -40,7 +40,7 @@ bool UCI::OPTION::operator ==(const long long& value) {
 
 bool UCI::OPTION::operator ==(const int& value) {
 
-	if ( this -> type() == UCI::TYPES::ARRAY )
+	if ( this -> type() == UCI::TYPE::ARRAY )
 		return false;
 
 	try {
@@ -52,7 +52,7 @@ bool UCI::OPTION::operator ==(const int& value) {
 
 bool UCI::OPTION::operator ==(const long double& value) {
 
-	if ( this -> type() == UCI::TYPES::ARRAY )
+	if ( this -> type() == UCI::TYPE::ARRAY )
 		return false;
 
 	try {
@@ -64,7 +64,7 @@ bool UCI::OPTION::operator ==(const long double& value) {
 
 bool UCI::OPTION::operator ==(const double& value) {
 
-	if ( this -> type() == UCI::TYPES::ARRAY )
+	if ( this -> type() == UCI::TYPE::ARRAY )
 		return false;
 
 	try {
@@ -76,7 +76,7 @@ bool UCI::OPTION::operator ==(const double& value) {
 
 bool UCI::OPTION::operator ==(const float& value) {
 
-	if ( this -> type() == UCI::TYPES::ARRAY )
+	if ( this -> type() == UCI::TYPE::ARRAY )
 		return false;
 
 	try {
@@ -88,7 +88,7 @@ bool UCI::OPTION::operator ==(const float& value) {
 
 bool UCI::OPTION::operator ==(const bool& value) {
 
-	if ( this -> type() == UCI::TYPES::ARRAY )
+	if ( this -> type() == UCI::TYPE::ARRAY )
 		return false;
 
 	try {
@@ -100,7 +100,7 @@ bool UCI::OPTION::operator ==(const bool& value) {
 
 bool UCI::OPTION::operator ==(const std::vector<UCI::OPTION>& value) {
 
-	if ( this -> type() == UCI::TYPES::ARRAY || this -> size() != value.size())
+	if ( this -> type() == UCI::TYPE::ARRAY || this -> size() != value.size())
 		return false;
 
 	size_t index = 0;
@@ -362,7 +362,7 @@ std::string UCI::OPTION::name() const {
 
 size_t UCI::OPTION::index() const {
 
-	if ( this -> type() == UCI::TYPES::ARRAY && this -> _parent_id != -1 ) {
+	if ( this -> type() == UCI::TYPE::ARRAY && this -> _parent_id != -1 ) {
 
 		long id = this -> _id;
 		const std::vector<UCI::OPTION>& parent = std::get<std::vector<UCI::OPTION>>(this -> get_parent()._value);
@@ -373,30 +373,30 @@ size_t UCI::OPTION::index() const {
 	} else return this -> get_section().index_of(*this);
 }
 
-UCI::TYPES UCI::OPTION::type() const {
+UCI::TYPE UCI::OPTION::type() const {
 
 	if ( std::holds_alternative<std::vector<UCI::OPTION>>(this -> _value))
-		return UCI::TYPES::ARRAY;
+		return UCI::TYPE::ARRAY;
 	else if ( std::holds_alternative<std::string>(this -> _value))
-		return UCI::TYPES::STRING;
+		return UCI::TYPE::STRING;
 	else if ( std::holds_alternative<bool>(this -> _value))
-		return UCI::TYPES::BOOL;
+		return UCI::TYPE::BOOL;
 	else if ( std::holds_alternative<long long>(this -> _value))
-		return UCI::TYPES::INT;
+		return UCI::TYPE::INT;
 	else if ( std::holds_alternative<long double>(this -> _value))
-		return UCI::TYPES::FLOAT;
-	else return UCI::TYPES::STRING;
+		return UCI::TYPE::FLOAT;
+	else return UCI::TYPE::STRING;
 }
 
-bool UCI::OPTION::is_convertible(const UCI::TYPES& to) const {
+bool UCI::OPTION::is_convertible(const UCI::TYPE& to) const {
 
-	if ( to == UCI::TYPES::STRING )
+	if ( to == UCI::TYPE::STRING )
 		return true;
-	else if ( to == UCI::TYPES::FLOAT ) {
+	else if ( to == UCI::TYPE::FLOAT ) {
 
-		if ( this -> type() == UCI::TYPES::FLOAT || this -> type() == UCI::TYPES::INT || this -> type() == UCI::TYPES::BOOL )
+		if ( this -> type() == UCI::TYPE::FLOAT || this -> type() == UCI::TYPE::INT || this -> type() == UCI::TYPE::BOOL )
 			return true;
-		else if ( this -> type() == UCI::TYPES::STRING ) {
+		else if ( this -> type() == UCI::TYPE::STRING ) {
 
 			std::string value = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(std::get<std::string>(this -> _value)))));
 			try {
@@ -410,11 +410,11 @@ bool UCI::OPTION::is_convertible(const UCI::TYPES& to) const {
 
 		return false;
 
-	} else if ( to == UCI::TYPES::INT ) {
+	} else if ( to == UCI::TYPE::INT ) {
 
-		if ( this -> type() == UCI::TYPES::FLOAT || this -> type() == UCI::TYPES::INT || this -> type() == UCI::TYPES::BOOL )
+		if ( this -> type() == UCI::TYPE::FLOAT || this -> type() == UCI::TYPE::INT || this -> type() == UCI::TYPE::BOOL )
 			return true;
-		else if ( this -> type() == UCI::TYPES::STRING ) {
+		else if ( this -> type() == UCI::TYPE::STRING ) {
 
 			std::string value = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(std::get<std::string>(this -> _value)))));
 			try {
@@ -428,11 +428,11 @@ bool UCI::OPTION::is_convertible(const UCI::TYPES& to) const {
 
 		return false;
 
-	} else if ( to == UCI::TYPES::BOOL ) {
+	} else if ( to == UCI::TYPE::BOOL ) {
 
-		if ( this -> type() == UCI::TYPES::FLOAT || this -> type() == UCI::TYPES::INT || this -> type() == UCI::TYPES::BOOL )
+		if ( this -> type() == UCI::TYPE::FLOAT || this -> type() == UCI::TYPE::INT || this -> type() == UCI::TYPE::BOOL )
 			return true;
-		else if ( this -> type() == UCI::TYPES::STRING ) {
+		else if ( this -> type() == UCI::TYPE::STRING ) {
 
 			std::string value = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(std::get<std::string>(this -> _value)))));
 
@@ -447,16 +447,16 @@ bool UCI::OPTION::is_convertible(const UCI::TYPES& to) const {
 	return false;
 }
 
-bool UCI::OPTION::convertible_to(const UCI::TYPES& type) const {
+bool UCI::OPTION::convertible_to(const UCI::TYPE& type) const {
 
 	return this -> is_convertible(type);
 }
 
 std::string UCI::OPTION::to_string() const {
 
-	if ( this -> type() == UCI::TYPES::STRING )
+	if ( this -> type() == UCI::TYPE::STRING )
 		return std::get<std::string>(this -> _value);
-	else if ( this -> type() == UCI::TYPES::FLOAT ) {
+	else if ( this -> type() == UCI::TYPE::FLOAT ) {
 
 		std::string s = std::to_string(std::get<long double>(this -> _value));
 
@@ -474,11 +474,11 @@ std::string UCI::OPTION::to_string() const {
 
 		return s;
 
-	} else if ( this -> type() == UCI::TYPES::INT )
+	} else if ( this -> type() == UCI::TYPE::INT )
 		return std::to_string(std::get<long long>(this -> _value));
-	else if ( this -> type() == UCI::TYPES::BOOL )
+	else if ( this -> type() == UCI::TYPE::BOOL )
 		return std::get<bool>(this -> _value) == true ? "true" : "false";
-	else if ( this -> type() == UCI::TYPES::ARRAY ) {
+	else if ( this -> type() == UCI::TYPE::ARRAY ) {
 
 		std::string s;
 
@@ -493,13 +493,13 @@ std::string UCI::OPTION::to_string() const {
 
 long double UCI::OPTION::to_float() const {
 
-	if ( this -> type() == UCI::TYPES::FLOAT )
+	if ( this -> type() == UCI::TYPE::FLOAT )
 		return std::get<long double>(this -> _value);
-	else if ( this -> type() == UCI::TYPES::INT )
+	else if ( this -> type() == UCI::TYPE::INT )
 		return (long double)std::get<long long>(this -> _value);
-	else if ( this -> type() == UCI::TYPES::BOOL )
+	else if ( this -> type() == UCI::TYPE::BOOL )
 		return (long double)(std::get<bool>(this -> _value) ? 1 : 0 );
-	else if ( this -> type() == UCI::TYPES::STRING ) {
+	else if ( this -> type() == UCI::TYPE::STRING ) {
 
 		long double ld = -1;
 		std::string value = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(std::get<std::string>(this -> _value)))));
@@ -514,7 +514,7 @@ long double UCI::OPTION::to_float() const {
 
 		return ld;
 
-	} else if ( this -> type() == UCI::TYPES::ARRAY )
+	} else if ( this -> type() == UCI::TYPE::ARRAY )
 		throw std::runtime_error("array is not convertible to float value");
 
 	throw std::runtime_error("option " + this -> _name + " is not convertible to float value");
@@ -522,13 +522,13 @@ long double UCI::OPTION::to_float() const {
 
 long long UCI::OPTION::to_number() const {
 
-	if ( this -> type() == UCI::TYPES::FLOAT )
+	if ( this -> type() == UCI::TYPE::FLOAT )
 		return (long long)std::get<long double>(this -> _value);
-	else if ( this -> type() == UCI::TYPES::INT )
+	else if ( this -> type() == UCI::TYPE::INT )
 		return std::get<long long>(this -> _value);
-	else if ( this -> type() == UCI::TYPES::BOOL )
+	else if ( this -> type() == UCI::TYPE::BOOL )
 		return (long long)(std::get<bool>(this -> _value) ? 1 : 0);
-	else if ( this -> type() == UCI::TYPES::STRING ) {
+	else if ( this -> type() == UCI::TYPE::STRING ) {
 
 		long long ll = -1;
 		std::string value = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(std::get<std::string>(this -> _value)))));
@@ -543,7 +543,7 @@ long long UCI::OPTION::to_number() const {
 
 		return ll;
 
-	} else if ( this -> type() == UCI::TYPES::ARRAY )
+	} else if ( this -> type() == UCI::TYPE::ARRAY )
 		throw std::runtime_error("array is not convertible to number value");
 
 	throw std::runtime_error("option " + this -> _name + " is not convertible to number value");
@@ -551,13 +551,13 @@ long long UCI::OPTION::to_number() const {
 
 bool UCI::OPTION::to_bool() const {
 
-	if ( this -> type() == UCI::TYPES::FLOAT )
+	if ( this -> type() == UCI::TYPE::FLOAT )
 		return ((long long)std::get<long double>(this -> _value)) != 0;
-	else if ( this -> type() == UCI::TYPES::INT )
+	else if ( this -> type() == UCI::TYPE::INT )
 		return std::get<long long>(this -> _value) != 0;
-	else if ( this -> type() == UCI::TYPES::BOOL )
+	else if ( this -> type() == UCI::TYPE::BOOL )
 		return std::get<bool>(this -> _value);
-	if ( this -> type() == UCI::TYPES::STRING ) {
+	if ( this -> type() == UCI::TYPE::STRING ) {
 
 		std::string value = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(std::get<std::string>(this -> _value)))));
 
@@ -571,7 +571,7 @@ bool UCI::OPTION::to_bool() const {
 
 		throw std::runtime_error("string value '" + value + "' is not convertible to boolean value");
 
-	} else if ( this -> type() == UCI::TYPES::ARRAY )
+	} else if ( this -> type() == UCI::TYPE::ARRAY )
 		throw std::runtime_error("array is not convertible to boolean value");
 
 	throw std::runtime_error("option " + this -> _name + " is not convertible to boolean value");
@@ -598,7 +598,7 @@ UCI::OPTION& UCI::OPTION::add(const UCI::OPTION& option) {
 
 void UCI::OPTION::remove() {
 
-	if ( this -> _parent_id != -1 && this -> get_parent().type() == UCI::TYPES::ARRAY )
+	if ( this -> _parent_id != -1 && this -> get_parent().type() == UCI::TYPE::ARRAY )
 		this -> get_parent().remove(*this);
 	else if ( this -> _section_id != -1 )
 		this -> get_section().remove(*this);
@@ -940,7 +940,7 @@ UCI::OPTION::OPTION(UCI::PACKAGE* package, const std::string& name, const std::v
 	std::vector<UCI::OPTION>& vec = std::get<std::vector<UCI::OPTION>>(this -> _value);
 	for ( auto it = vec.begin(); it != vec.end(); it++ ) {
 
-		if ( it -> type() == UCI::TYPES::ARRAY )
+		if ( it -> type() == UCI::TYPE::ARRAY )
 			throw std::runtime_error("invalid list, nested lists are not allowed");
 
 		it -> _package = package;

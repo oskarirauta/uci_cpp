@@ -2,7 +2,7 @@
 
 namespace UCI {
 
-	enum TYPES {
+	enum TYPE {
 		STRING, FLOAT, INT, BOOL, ARRAY
 	};
 

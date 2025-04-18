@@ -256,7 +256,7 @@ void UCI::PACKAGE::parse(const std::string& blob) {
 
 			if ( this -> operator [](category)[section_index].contains(option)) {
 
-				if ( this -> operator[](category)[section_index][option].type() != UCI::TYPES::ARRAY )
+				if ( this -> operator[](category)[section_index][option].type() != UCI::TYPE::ARRAY )
 					throw std::runtime_error("invalid directive, option " + option + " exists and is not a list");
 
 				this -> operator[](category)[section_index][option].add(to_option(value));
@@ -289,11 +289,11 @@ std::string UCI::PACKAGE::filedata() const {
 
 			for ( auto option = section -> _options.begin(); option != section -> _options.end(); option++ ) {
 
-				if ( option -> type() != UCI::TYPES::ARRAY ) {
+				if ( option -> type() != UCI::TYPE::ARRAY ) {
 
 					s += "\n\toption " + option -> _name + " ";
 
-					if ( option -> type() == UCI::TYPES::STRING )
+					if ( option -> type() == UCI::TYPE::STRING )
 						s += "'" + option -> to_string() + "'";
 					else s += option -> to_string();
 
@@ -302,7 +302,7 @@ std::string UCI::PACKAGE::filedata() const {
 					for ( auto child = option -> begin(); child != option -> end(); child++ ) {
 
 						s += "\n\tlist " + option -> _name + " ";
-						if ( child -> type() == UCI::TYPES::STRING )
+						if ( child -> type() == UCI::TYPE::STRING )
 							s += "'" + child -> to_string() + "'";
 						else s += child -> to_string();
 					}

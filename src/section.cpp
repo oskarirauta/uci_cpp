@@ -139,7 +139,7 @@ UCI::OPTION& UCI::SECTION::add(const std::string& name, const UCI::OPTION& optio
 		it -> _parent_id = -1;
 		it -> _id = UCI::OPTION::next_id(true);
 
-		if ( it -> type() == UCI::TYPES::ARRAY ) {
+		if ( it -> type() == UCI::TYPE::ARRAY ) {
 
 			std::vector<UCI::OPTION>& vec = std::get<std::vector<UCI::OPTION>>(it -> _value);
 			for ( auto it2 = vec.begin(); it != vec.end(); it++ ) {
@@ -166,7 +166,7 @@ UCI::OPTION& UCI::SECTION::add(const std::string& name, const UCI::OPTION& optio
 	new_opt._parent_id = -1;
 	new_opt._id = UCI::OPTION::next_id(true);
 
-	if ( new_opt.type() == UCI::TYPES::ARRAY ) {
+	if ( new_opt.type() == UCI::TYPE::ARRAY ) {
 
 		std::vector<UCI::OPTION>& vec = std::get<std::vector<UCI::OPTION>>(new_opt._value);
 		for ( auto it = vec.begin(); it != vec.end(); it++ ) {

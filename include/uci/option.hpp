@@ -20,8 +20,8 @@ namespace UCI {
 			using iterator = std::vector<OPTION>::iterator;
 			using const_iterator = std::vector<OPTION>::const_iterator;
 
-			bool operator ==(const UCI::TYPES& type) const;
-			bool operator !=(const UCI::TYPES& type) const;
+			bool operator ==(const UCI::TYPE& type) const;
+			bool operator !=(const UCI::TYPE& type) const;
 
 			bool operator ==(const std::string& value);
 			bool operator ==(const char* value);
@@ -69,10 +69,10 @@ namespace UCI {
 			std::string name() const;
 			size_t index() const;
 
-			UCI::TYPES type() const;
+			UCI::TYPE type() const;
 
-			bool is_convertible(const UCI::TYPES& to) const;
-			bool convertible_to(const UCI::TYPES& type) const;
+			bool is_convertible(const UCI::TYPE& to) const;
+			bool convertible_to(const UCI::TYPE& type) const;
 
 			std::string to_string() const;
 			long double to_float() const;
