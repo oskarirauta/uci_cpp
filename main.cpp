@@ -22,7 +22,6 @@ int main(int argc, char** argv) {
 	section -> add ("bool", true);
 	section -> add("info", "test");
 
-	// initializer list: (broken)
 	// section -> add("array", (std::vector<UCI::OPTION>){ "hello", "world" });
 
 	section -> add("array", (std::vector<UCI::OPTION>){ "hello", "world" });

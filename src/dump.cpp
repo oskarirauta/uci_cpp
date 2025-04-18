@@ -3,13 +3,13 @@
 
 void UCI::PACKAGE::dump() const {
 
-	for ( auto type_it = this -> _types.begin(); type_it != this -> _types.end(); type_it++ ) {
+	for ( auto category_it = this -> _categories.begin(); category_it != this -> _categories.end(); category_it++ ) {
 
-		for ( auto section_it = type_it -> _sections.begin(); section_it != type_it -> _sections.end(); section_it++ ) {
+		for ( auto section_it = category_it -> _sections.begin(); section_it != category_it -> _sections.end(); section_it++ ) {
 
 			for ( auto option_it = section_it -> _options.begin(); option_it != section_it -> _options.end(); option_it++ ) {
 
-				std::cout << type_it -> _name << ( section_it -> is_anonymous() ? "" : "." )
+				std::cout << category_it -> _name << ( section_it -> is_anonymous() ? "" : "." )
 					<< section_it -> name() << "." << option_it -> _name << "=";
 
 				if ( option_it -> type() == UCI::STRING )

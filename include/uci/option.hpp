@@ -98,7 +98,7 @@ namespace UCI {
 		private:
 
 			PACKAGE* _package = nullptr;
-			long _type_id = -1;
+			long _category_id = -1;
 			long _section_id = -1;
 			long _parent_id = -1;
 			long _id = -1;
@@ -106,15 +106,15 @@ namespace UCI {
 			std::string _name = "";
 			std::variant<std::string, long long, long double, bool, std::vector<OPTION>, std::nullptr_t> _value = nullptr;
 
-			void set_ids(long type_id, long section_id, long id);
-			void set_ids(long type_id, long section_id, long parent_id, long id);
+			void set_ids(long category_id, long section_id, long id);
+			void set_ids(long category_id, long section_id, long parent_id, long id);
 
 			const OPTION& get_parent() const;
 			OPTION& get_parent();
 			const SECTION& get_section() const;
 			SECTION& get_section();
-			const TYPE& get_type() const;
-			TYPE& get_type();
+			const CATEGORY& get_category() const;
+			CATEGORY& get_category();
 
 			OPTION();
 			OPTION(PACKAGE* package, const std::string& name, const std::nullptr_t& n);

@@ -160,11 +160,11 @@ void UCI::PACKAGE::parse(const std::string& blob) {
 	std::string word3 = "";
 	int wc = 0;
 
-	std::string type = "";
+	std::string category = "";
 	std::string section = "";
 
 	size_t section_index = -1;
-	this -> _types.clear();
+	this -> _categories.clear();
 
 	while ( pos < len(blob)) {
 
@@ -207,28 +207,28 @@ void UCI::PACKAGE::parse(const std::string& blob) {
 			throw std::runtime_error("invalid characters found in \"" + word1 + "\"");
 
 		if ( word2.find_first_not_of("1234567890abcdefghijklmnopqrstuvwxyz_") != std::string::npos )
-			throw std::runtime_error("invalid characters in " + std::string( word1 == "config" ? "type" : "identifier" ) + " \"" + word2 + "\"");
+			throw std::runtime_error("invalid characters in " + std::string( word1 == "config" ? "category" : "identifier" ) + " \"" + word2 + "\"");
 
 		if ( word1 == "config" ) {
 
-			type = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(word2))));
+			category = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(word2))));
 			section = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(word3))));
 			section_index = -1;
 
-			if ( type.empty())
-				throw std::runtime_error("invalid section type, type cannot be empty");
+			if ( category.empty())
+				throw std::runtime_error("invalid section category, category cannot be empty");
 
-			if ( !this -> contains(type)) {
+			if ( !this -> contains(category)) {
 
 				if ( section.empty())
-					section_index = this -> add(type).index();
-				else section_index = this -> add(type, section).index();
+					section_index = this -> add(category).index();
+				else section_index = this -> add(category, section).index();
 
-			} else if ( !section.empty() && !this -> operator[](type).contains(section)) {
-				section_index = this -> add(type, section).index();
+			} else if ( !section.empty() && !this -> operator[](category).contains(section)) {
+				section_index = this -> add(category, section).index();
 			} else if ( section.empty()) {
-				section_index = this -> add(type).index();
-			} else throw std::runtime_error("duplicate " + type + " section " + section);
+				section_index = this -> add(category).index();
+			} else throw std::runtime_error("duplicate " + category + " section " + section);
 
 			word1 = word2 = word3 = "";
 			wc = 0;
@@ -247,23 +247,23 @@ void UCI::PACKAGE::parse(const std::string& blob) {
 
 		if ( word1 == "option" ) {
 
-			if ( this -> operator [](type)[section_index].contains(option))
+			if ( this -> operator [](category)[section_index].contains(option))
 				throw std::runtime_error("syntax error, duplicate option " + option);
 
-			this -> operator [](type)[section_index].add(option, to_option(value));
+			this -> operator [](category)[section_index].add(option, to_option(value));
 
 		} else if ( word1 == "list" ) {
 
-			if ( this -> operator [](type)[section_index].contains(option)) {
+			if ( this -> operator [](category)[section_index].contains(option)) {
 
-				if ( this -> operator[](type)[section_index][option].type() != UCI::TYPES::ARRAY )
+				if ( this -> operator[](category)[section_index][option].type() != UCI::TYPES::ARRAY )
 					throw std::runtime_error("invalid directive, option " + option + " exists and is not a list");
 
-				this -> operator[](type)[section_index][option].add(to_option(value));
+				this -> operator[](category)[section_index][option].add(to_option(value));
 
 			} else {
 
-				this -> operator[](type)[section_index].add(option, std::vector<UCI::OPTION>{ to_option(value) });
+				this -> operator[](category)[section_index].add(option, std::vector<UCI::OPTION>{ to_option(value) });
 			}
 		}
 
@@ -278,11 +278,11 @@ std::string UCI::PACKAGE::filedata() const {
 
 	std::string s = "";
 
-	for ( auto type = this -> _types.begin(); type != this -> _types.end(); type++ ) {
+	for ( auto category = this -> _categories.begin(); category != this -> _categories.end(); category++ ) {
 
-		for ( auto section = type -> _sections.begin(); section != type -> _sections.end(); section++ ) {
+		for ( auto section = category -> _sections.begin(); section != category -> _sections.end(); section++ ) {
 
-			s += ( !s.empty() ? "\n\n" : "" ) + std::string("config ") + type -> _name;
+			s += ( !s.empty() ? "\n\n" : "" ) + std::string("config ") + category -> _name;
 
 			if ( section -> _name != std::nullopt )
 				s += " '" + *section -> _name + "'";

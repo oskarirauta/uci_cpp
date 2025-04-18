@@ -98,7 +98,7 @@ std::string UCI::SECTION::name() const {
 }
 
 size_t UCI::SECTION::index() const {
-	return this -> get_type().index_of(*this);
+	return this -> get_category().index_of(*this);
 }
 
 unsigned long UCI::SECTION::id() const {
@@ -134,7 +134,7 @@ UCI::OPTION& UCI::SECTION::add(const std::string& name, const UCI::OPTION& optio
 
 		it -> _name = name;
 		it -> _package = this -> _package;
-		it -> _type_id = this -> _type_id;
+		it -> _category_id = this -> _category_id;
 		it -> _section_id = this -> _id;
 		it -> _parent_id = -1;
 		it -> _id = UCI::OPTION::next_id(true);
@@ -146,7 +146,7 @@ UCI::OPTION& UCI::SECTION::add(const std::string& name, const UCI::OPTION& optio
 
 				it2 -> _name = _name;
 				it2 -> _package = this -> _package;
-				it2 -> _type_id = this -> _type_id;
+				it2 -> _category_id = this -> _category_id;
 				it2 -> _section_id = this -> _id;
 				it2 -> _parent_id = it -> _id;
 				it2 -> _id = UCI::OPTION::next_id(true);
@@ -161,7 +161,7 @@ UCI::OPTION& UCI::SECTION::add(const std::string& name, const UCI::OPTION& optio
 	new_opt._name = name;
 	new_opt._value = option._value;
 	new_opt._package = this -> _package;
-	new_opt._type_id = this -> _type_id;
+	new_opt._category_id = this -> _category_id;
 	new_opt._section_id = this -> _id;
 	new_opt._parent_id = -1;
 	new_opt._id = UCI::OPTION::next_id(true);
@@ -173,7 +173,7 @@ UCI::OPTION& UCI::SECTION::add(const std::string& name, const UCI::OPTION& optio
 
 			it -> _name = _name;
 			it -> _package = this -> _package;
-			it -> _type_id = this -> _type_id;
+			it -> _category_id = this -> _category_id;
 			it -> _section_id = this -> _id;
 			it -> _parent_id = new_opt._id;
 			it -> _id = UCI::OPTION::next_id(true);
@@ -196,8 +196,8 @@ void UCI::SECTION::remove(const UCI::OPTION& option) {
 
 void UCI::SECTION::remove() {
 
-	if ( this -> _type_id != -1 && this -> _id != -1 )
-		this -> _package -> remove(this -> _type_id, this -> _id);
+	if ( this -> _category_id != -1 && this -> _id != -1 )
+		this -> _package -> remove(this -> _category_id, this -> _id);
 }
 
 size_t UCI::SECTION::index_of(const UCI::OPTION& option) const {
@@ -206,22 +206,22 @@ size_t UCI::SECTION::index_of(const UCI::OPTION& option) const {
 	return it == this -> _options.end() ? -1 : std::distance(this -> _options.begin(), it);
 }
 
-const UCI::TYPE& UCI::SECTION::get_type() const {
+const UCI::CATEGORY& UCI::SECTION::get_category() const {
 
-	auto it = std::find_if(this -> _package -> _types.begin(), this -> _package -> _types.end(), [this](const UCI::TYPE& t) { return this -> _type_id == t._id; });
+	auto it = std::find_if(this -> _package -> _categories.begin(), this -> _package -> _categories.end(), [this](const UCI::CATEGORY& t) { return this -> _category_id == t._id; });
 
-	if ( it == this -> _package -> _types.end())
-		throw std::runtime_error("get_type failed to find type with id " + std::to_string(this -> _type_id));
+	if ( it == this -> _package -> _categories.end())
+		throw std::runtime_error("get_category failed to find category with id " + std::to_string(this -> _category_id));
 
 	return *it;
 }
 
-UCI::TYPE& UCI::SECTION::get_type() {
+UCI::CATEGORY& UCI::SECTION::get_category() {
 
-	auto it = std::find_if(this -> _package -> _types.begin(), this -> _package -> _types.end(), [this](const UCI::TYPE& t) { return this -> _type_id == t._id; });
+	auto it = std::find_if(this -> _package -> _categories.begin(), this -> _package -> _categories.end(), [this](const UCI::CATEGORY& t) { return this -> _category_id == t._id; });
 
-	if ( it == this -> _package -> _types.end())
-		throw std::runtime_error("get_type failed to find type with id " + std::to_string(this -> _type_id));
+	if ( it == this -> _package -> _categories.end())
+		throw std::runtime_error("get_category failed to find category with id " + std::to_string(this -> _category_id));
 
 	return *it;
 }

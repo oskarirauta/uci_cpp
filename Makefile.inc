@@ -5,7 +5,7 @@ UCI_OBJS:= \
 	objs/uci-util.o \
 	objs/uci-option.o \
 	objs/uci-section.o \
-	objs/uci-type.o \
+	objs/uci-category.o \
 	objs/uci-package.o \
 	objs/uci-parse.o \
 	objs/uci-dump.o
@@ -19,7 +19,7 @@ objs/uci-option.o: $(UCI_DIR)/src/option.cpp
 objs/uci-section.o: $(UCI_DIR)/src/section.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<;
 
-objs/uci-type.o: $(UCI_DIR)/src/type.cpp
+objs/uci-category.o: $(UCI_DIR)/src/category.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<;
 
 objs/uci-package.o: $(UCI_DIR)/src/package.cpp

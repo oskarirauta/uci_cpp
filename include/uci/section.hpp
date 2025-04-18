@@ -6,13 +6,13 @@
 namespace UCI {
 
 	class PACKAGE;
-	class TYPE;
+	class CATEGORY;
 	class OPTION;
 
 	class SECTION {
 
 		friend class PACKAGE;
-		friend class TYPE;
+		friend class CATEGORY;
 		friend class OPTION;
 
 		public:
@@ -48,20 +48,20 @@ namespace UCI {
 		private:
 
 			PACKAGE* _package = nullptr;
-			long _type_id = -1;
+			long _category_id = -1;
 			long _id = -1;
 
 			std::optional<std::string> _name;
 			std::vector<UCI::OPTION> _options = {};
 
 			size_t index_of(const UCI::OPTION& option) const;
-			const TYPE& get_type() const;
-			TYPE& get_type();
+			const CATEGORY& get_category() const;
+			CATEGORY& get_category();
 
-			SECTION(PACKAGE* package, long type_id, long id) :
-				_package(package), _type_id(type_id), _id(id), _name(std::nullopt) {}
-			SECTION(PACKAGE* package, long type_id, long id, const std::optional<std::string>& name) :
-				_package(package), _type_id(type_id), _id(id), _name(name) {}
+			SECTION(PACKAGE* package, long category_id, long id) :
+				_package(package), _category_id(category_id), _id(id), _name(std::nullopt) {}
+			SECTION(PACKAGE* package, long category_id, long id, const std::optional<std::string>& name) :
+				_package(package), _category_id(category_id), _id(id), _name(name) {}
 
 			static long next_id(bool push = false);
 			static void push_next_id();

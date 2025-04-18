@@ -5,25 +5,25 @@
 
 namespace UCI {
 
-	class TYPE;
+	class CATEGORY;
 	class SECTION;
 	class OPTION;
 
 	class PACKAGE {
 
-		friend class TYPE;
+		friend class CATEGORY;
 		friend class SECTION;
 		friend class OPTION;
 
 		public:
 
-			using iterator = std::vector<UCI::TYPE>::iterator;
-			using const_iterator = std::vector<UCI::TYPE>::const_iterator;
+			using iterator = std::vector<UCI::CATEGORY>::iterator;
+			using const_iterator = std::vector<UCI::CATEGORY>::const_iterator;
 
-			UCI::TYPE& operator [](const std::string& type);
-			UCI::TYPE& operator [](size_t index);
-			const UCI::TYPE& operator [](const std::string& type) const;
-			const UCI::TYPE& operator [](size_t index) const;
+			UCI::CATEGORY& operator [](const std::string& category);
+			UCI::CATEGORY& operator [](size_t index);
+			const UCI::CATEGORY& operator [](const std::string& category) const;
+			const UCI::CATEGORY& operator [](size_t index) const;
 
 			iterator begin();
 			iterator end();
@@ -34,7 +34,7 @@ namespace UCI {
 
 			size_t size() const;
 			bool empty() const;
-			bool contains(const std::string& type) const;
+			bool contains(const std::string& category) const;
 
 			std::string package() const;
 			std::string filename() const;
@@ -45,19 +45,19 @@ namespace UCI {
 			void save() const;
 			void dump() const;
 
-			UCI::SECTION& add(const std::string& type, const std::optional<std::string>& section);
-			UCI::SECTION& add(const std::string& type);
+			UCI::SECTION& add(const std::string& category, const std::optional<std::string>& section);
+			UCI::SECTION& add(const std::string& category);
 
 			PACKAGE(const std::string& package);
 
 		private:
 			std::string _package;
-			std::vector<UCI::TYPE> _types;
+			std::vector<UCI::CATEGORY> _categories;
 
-			size_t index_of(const UCI::TYPE& type) const;
-			UCI::TYPE& get_type(const long& type_id);
+			size_t index_of(const UCI::CATEGORY& category) const;
+			UCI::CATEGORY& get_category(const long& category_id);
 
-			void remove(const long& type_id, const long& section_id);
+			void remove(const long& category_id, const long& section_id);
 			void parse(const std::string& blob);
 
 			PACKAGE();

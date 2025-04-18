@@ -7,54 +7,54 @@
 #include "uci/util.hpp"
 #include "uci.hpp"
 
-UCI::TYPE& UCI::PACKAGE::operator [](const std::string& type) {
+UCI::CATEGORY& UCI::PACKAGE::operator [](const std::string& category) {
 
-	std::string name = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(type))));
+	std::string name = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(category))));
 
-	if ( auto it = std::find_if(this -> _types.begin(), this -> _types.end(), [&name](const UCI::TYPE& t) {
+	if ( auto it = std::find_if(this -> _categories.begin(), this -> _categories.end(), [&name](const UCI::CATEGORY& t) {
 			return t._name == name;
-		}); it != this -> _types.end())
+		}); it != this -> _categories.end())
 		return *it;
 
-	throw std::runtime_error("type " + name + " is out of bounds, type not found");
+	throw std::runtime_error("category " + name + " is out of bounds, category not found");
 }
 
-UCI::TYPE& UCI::PACKAGE::operator [](size_t index) {
+UCI::CATEGORY& UCI::PACKAGE::operator [](size_t index) {
 
-	if ( this -> _types.empty())
-		throw std::runtime_error("type at index " + std::to_string(index) + " is out of bounds, package is empty");
+	if ( this -> _categories.empty())
+		throw std::runtime_error("category at index " + std::to_string(index) + " is out of bounds, package is empty");
 
-	if ( index >= this -> _types.size())
-		throw std::runtime_error("type at index " + std::to_string(index) + " is out of bounds, last available index is " + std::to_string(this -> _types.size() - 1 ));
+	if ( index >= this -> _categories.size())
+		throw std::runtime_error("category at index " + std::to_string(index) + " is out of bounds, last available index is " + std::to_string(this -> _categories.size() - 1 ));
 
-	auto it = this -> _types.begin();
+	auto it = this -> _categories.begin();
 	if ( index > 0 )
 		std::advance(it, index);
 
 	return *it;
 }
 
-const UCI::TYPE& UCI::PACKAGE::operator [](const std::string& type) const {
+const UCI::CATEGORY& UCI::PACKAGE::operator [](const std::string& category) const {
 
-	std::string name = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(type))));
+	std::string name = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(category))));
 
-	if ( auto it = std::find_if(this -> _types.begin(), this -> _types.end(), [&name](const UCI::TYPE& t) {
+	if ( auto it = std::find_if(this -> _categories.begin(), this -> _categories.end(), [&name](const UCI::CATEGORY& t) {
 			return t._name == name;
-		}); it != this -> _types.end())
+		}); it != this -> _categories.end())
 		return *it;
 
-	throw std::runtime_error("type " + name + " is out of bounds, type not found");
+	throw std::runtime_error("category " + name + " is out of bounds, category not found");
 }
 
-const UCI::TYPE& UCI::PACKAGE::operator [](size_t index) const {
+const UCI::CATEGORY& UCI::PACKAGE::operator [](size_t index) const {
 
-	if ( this -> _types.empty())
-		throw std::runtime_error("type at index " + std::to_string(index) + " is out of bounds, package is empty");
+	if ( this -> _categories.empty())
+		throw std::runtime_error("category at index " + std::to_string(index) + " is out of bounds, package is empty");
 
-	if ( index >= this -> _types.size())
-		throw std::runtime_error("type at index " + std::to_string(index) + " is out of bounds, last available index is " + std::to_string(this -> _types.size() - 1 ));
+	if ( index >= this -> _categories.size())
+		throw std::runtime_error("category at index " + std::to_string(index) + " is out of bounds, last available index is " + std::to_string(this -> _categories.size() - 1 ));
 
-	auto it = this -> _types.begin();
+	auto it = this -> _categories.begin();
 	if ( index > 0 )
 		std::advance(it, index);
 
@@ -62,42 +62,42 @@ const UCI::TYPE& UCI::PACKAGE::operator [](size_t index) const {
 }
 
 UCI::PACKAGE::iterator UCI::PACKAGE::begin() {
-	return this -> _types.begin();
+	return this -> _categories.begin();
 }
 
 UCI::PACKAGE::iterator UCI::PACKAGE::end() {
-	return this -> _types.end();
+	return this -> _categories.end();
 }
 
 UCI::PACKAGE::const_iterator UCI::PACKAGE::begin() const {
-	return this -> _types.cbegin();
+	return this -> _categories.cbegin();
 }
 
 UCI::PACKAGE::const_iterator UCI::PACKAGE::end() const {
-	return this -> _types.cend();
+	return this -> _categories.cend();
 }
 
 UCI::PACKAGE::const_iterator UCI::PACKAGE::cbegin() const {
-	return this -> _types.cbegin();
+	return this -> _categories.cbegin();
 }
 
 UCI::PACKAGE::const_iterator UCI::PACKAGE::cend() const {
-	return this -> _types.cend();
+	return this -> _categories.cend();
 }
 
 size_t UCI::PACKAGE::size() const {
-	return this -> _types.size();
+	return this -> _categories.size();
 }
 
 bool UCI::PACKAGE::empty() const {
-	return this -> _types.empty();
+	return this -> _categories.empty();
 }
 
-bool UCI::PACKAGE::contains(const std::string& type) const {
+bool UCI::PACKAGE::contains(const std::string& category) const {
 
-	std::string name = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(type))));
+	std::string name = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(category))));
 
-	return std::find_if(this -> _types.begin(), this -> _types.end(), [&name](const UCI::TYPE& t) { return t._name == name; }) != this -> _types.end();
+	return std::find_if(this -> _categories.begin(), this -> _categories.end(), [&name](const UCI::CATEGORY& t) { return t._name == name; }) != this -> _categories.end();
 }
 
 std::string UCI::PACKAGE::package() const {
@@ -129,63 +129,63 @@ void UCI::PACKAGE::set_filename(const std::string& package) {
 	}
 }
 
-UCI::SECTION& UCI::PACKAGE::add(const std::string& type, const std::optional<std::string>& section) {
+UCI::SECTION& UCI::PACKAGE::add(const std::string& category, const std::optional<std::string>& section) {
 
-	std::string type_name = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(type))));
+	std::string category_name = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(category))));
 	std::string section_name = section == std::nullopt ? "" : UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(*section))));
 
-	auto _type = std::find_if(this -> _types.begin(), this -> _types.end(), [&type_name](const UCI::TYPE& t) { return type_name == t._name; });
-	if ( _type == this -> _types.end()) {
-		this -> _types.push_back(UCI::TYPE(this, UCI::TYPE::next_id(true), type_name));
-		for ( auto it = this -> _types.begin(); it != this -> _types.end(); it++ )
-			_type = it;
+	auto _category = std::find_if(this -> _categories.begin(), this -> _categories.end(), [&category_name](const UCI::CATEGORY& t) { return category_name == t._name; });
+	if ( _category == this -> _categories.end()) {
+		this -> _categories.push_back(UCI::CATEGORY(this, UCI::CATEGORY::next_id(true), category_name));
+		for ( auto it = this -> _categories.begin(); it != this -> _categories.end(); it++ )
+			_category = it;
 	}
 
 	try {
 		if ( section_name.empty())
-			return _type -> add(std::nullopt);
-		else return _type -> add(section_name);
+			return _category -> add(std::nullopt);
+		else return _category -> add(section_name);
 
 	} catch ( const std::runtime_error& e ) {
-		throw std::runtime_error("cannot add " + type_name + " section " + ( section_name.empty() ? "" : ( section_name + " " )) + ", " + std::string(e.what()));
+		throw std::runtime_error("cannot add " + category_name + " section " + ( section_name.empty() ? "" : ( section_name + " " )) + ", " + std::string(e.what()));
 	}
 }
 
-UCI::SECTION& UCI::PACKAGE::add(const std::string& type) {
+UCI::SECTION& UCI::PACKAGE::add(const std::string& category) {
 
-	std::string type_name = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(type))));
+	std::string category_name = UCI::STR::to_lower(UCI::STR::trim(UCI::STR::unquoted(UCI::STR::trim(category))));
 
-	auto _type = std::find_if(this -> _types.begin(), this -> _types.end(), [&type_name](const UCI::TYPE& t) { return type_name == t._name; });
-	if ( _type == this -> _types.end()) {
-		this -> _types.push_back(UCI::TYPE(this, UCI::TYPE::next_id(true), type_name));
-		for ( auto it = this -> _types.begin(); it != this -> _types.end(); it++ )
-			_type = it;
+	auto _category = std::find_if(this -> _categories.begin(), this -> _categories.end(), [&category_name](const UCI::CATEGORY& t) { return category_name == t._name; });
+	if ( _category == this -> _categories.end()) {
+		this -> _categories.push_back(UCI::CATEGORY(this, UCI::CATEGORY::next_id(true), category_name));
+		for ( auto it = this -> _categories.begin(); it != this -> _categories.end(); it++ )
+			_category = it;
 	}
 
 	try {
-		return _type -> add(std::nullopt);
+		return _category -> add(std::nullopt);
 	} catch ( const std::runtime_error& e ) {
-		throw std::runtime_error("cannot add " + type_name + " section, " + std::string(e.what()));
+		throw std::runtime_error("cannot add " + category_name + " section, " + std::string(e.what()));
 	}
 }
 
-size_t UCI::PACKAGE::index_of(const UCI::TYPE& type) const {
+size_t UCI::PACKAGE::index_of(const UCI::CATEGORY& category) const {
 
-	auto it = std::find_if(this -> _types.begin(), this -> _types.end(), [&type](const UCI::TYPE& t) { return type._id == t._id; });
-	return it == this -> _types.end() ? -1 : std::distance(this -> _types.begin(), it);
+	auto it = std::find_if(this -> _categories.begin(), this -> _categories.end(), [&category](const UCI::CATEGORY& t) { return category._id == t._id; });
+	return it == this -> _categories.end() ? -1 : std::distance(this -> _categories.begin(), it);
 }
 
-UCI::TYPE& UCI::PACKAGE::get_type(const long& type_id) {
+UCI::CATEGORY& UCI::PACKAGE::get_category(const long& category_id) {
 
-	auto it = std::find_if(this -> _types.begin(), this -> _types.end(), [&type_id](const UCI::TYPE& t ) { return type_id == t._id; });
+	auto it = std::find_if(this -> _categories.begin(), this -> _categories.end(), [&category_id](const UCI::CATEGORY& t ) { return category_id == t._id; });
 	return *it;
 }
 
-void UCI::PACKAGE::remove(const long& type_id, const long& section_id) {
+void UCI::PACKAGE::remove(const long& category_id, const long& section_id) {
 
-	if ( auto it = std::find_if(this -> _types.begin(), this -> _types.end(), [&type_id](const UCI::TYPE& t) {
-			return type_id == t._id;
-		}); it != this -> _types.end()) {
+	if ( auto it = std::find_if(this -> _categories.begin(), this -> _categories.end(), [&category_id](const UCI::CATEGORY& t) {
+			return category_id == t._id;
+		}); it != this -> _categories.end()) {
 
 		it -> _sections.erase(std::remove_if(it -> _sections.begin(), it -> _sections.end(), [&section_id](const UCI::SECTION& s) {
 			return section_id == s._id;
@@ -197,16 +197,16 @@ void UCI::PACKAGE::remove(const long& type_id, const long& section_id) {
 
 void UCI::PACKAGE::clean_up() {
 
-	for ( auto it = this -> _types.begin(); it != this -> _types.end(); it++ ) {
+	for ( auto it = this -> _categories.begin(); it != this -> _categories.end(); it++ ) {
 
 		it -> _sections.erase(std::remove_if(it -> _sections.begin(), it -> _sections.end(), [](const UCI::SECTION& s) {
 			return s._options.empty();
 		}), it -> _sections.end());
 	}
 
-	this -> _types.erase(std::remove_if(this -> _types.begin(), this -> _types.end(), [](const UCI::TYPE& t) {
+	this -> _categories.erase(std::remove_if(this -> _categories.begin(), this -> _categories.end(), [](const UCI::CATEGORY& t) {
 		return t._sections.empty();
-	}), this -> _types.end());
+	}), this -> _categories.end());
 }
 
 UCI::PACKAGE::PACKAGE(const std::string& package) {

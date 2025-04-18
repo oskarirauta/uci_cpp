@@ -9,7 +9,7 @@ namespace UCI {
 	class SECTION;
 	class OPTION;
 
-	class TYPE {
+	class CATEGORY {
 
 		friend class PACKAGE;
 		friend class SECTION;
@@ -50,7 +50,7 @@ namespace UCI {
 
 			size_t index_of(const UCI::SECTION& section) const;
 
-			TYPE(PACKAGE* package, long id, const std::string& name) : _package(package), _id(id), _name(name) {}
+			CATEGORY(PACKAGE* package, long id, const std::string& name) : _package(package), _id(id), _name(name) {}
 
 			static long next_id(bool push = false);
 			static void push_next_id();
